@@ -16,13 +16,20 @@ function convertToCards(data) {
         for (var i = 0; i < parsed[set].cards.length; i++) {
             var card = parsed[set].cards[i];
             if (!(card.name in cardNames)) {
-                cardNames[card.name] = {}
+                cardNames[card.name] = {};
             }
             cardNames[card.name][set] = i;
-            parsed[set].cards[i] = {
-                "rarity": card.rarity,
-                "multiverseid": card.multiverseid
+            if (card.hasOwnProperty("foreignNames")) {
+                for (var j=0; j<card.foreignNames.length; j++) {
+                    delete card.foreignNames[j].name;
+                    delete card.foreignNames[j].multiverseid;
+                }
             }
+            parsed[set].cards[i] = {
+                "foreignNames": card.foreignNames,
+                "multiverseid": card.multiverseid,
+                "rarity": card.rarity
+            };
         }
     }
     fs.writeFile(MIN_FILE, "allSetsXCallback(" + JSON.stringify(parsed) + ");", function(err) {
